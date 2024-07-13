@@ -88,7 +88,7 @@ export default function SinglePlacePage() {
                         {place.description}
                     </div>
                     <b>Check In: </b>{place.checkIn}<br />
-                    <b>Check In: </b>{place.checkOut}<br />
+                    <b>Check Out: </b>{place.checkOut}<br />
                     <b>Max Guest: </b>{place.maxGuests}
                 </div>
                 <BookingWidget place={place} />
