@@ -9,6 +9,7 @@ export default function BookingWidget({ place }) {
     const [numberOfGuest, setNumberOfGuest] = useState(1);
     const [phone, setPhone] = useState('');
     const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
     const [redirect, setRedirect] = useState('');
 
     const calculateDays = () => {
@@ -22,7 +23,7 @@ export default function BookingWidget({ place }) {
     async function bookThisPlace() {
         const data = {
             checkIn, checkOut, numberOfGuest, fullName, phone, place: place._id,
-            price: calculateDays() * place.price * numberOfGuest
+            price: calculateDays() * place.price * numberOfGuest, email,
         };
         const res = await axios.post('/bookings', data);
 
@@ -61,20 +62,30 @@ export default function BookingWidget({ place }) {
                         onChange={ev => setNumberOfGuest(ev.target.value)} />
                 </div>
                 {checkIn.length > 0 && checkOut.length > 0 && (
-                    <div className="px-4 py-3 border-t">
-                        <label>Full Name : </label>
-                        <input type="string" placeholder="1"
-                            value={fullName}
-                            onChange={ev => setFullName(ev.target.value)} />
-                        <label>Phone No. : </label>
-                        <input type="string" placeholder="1"
-                            value={phone}
-                            onChange={ev => setPhone(ev.target.value)} />
+                    <div className="px-4 py-3 border-t flex flex-col gap-2">
+                        <div>
+                            <label>Full Name : </label>
+                            <input type="string" placeholder="e.g. Raj Verma"
+                                value={fullName}
+                                onChange={ev => setFullName(ev.target.value)} />
+                        </div>
+                        <div>
+                            <label>Phone No. : </label>
+                            <input type="string" placeholder="e.g. +91 98765 43210"
+                                value={phone}
+                                onChange={ev => setPhone(ev.target.value)} />
+                        </div>
+                        <div>
+                            <label>Email : </label>
+                            <input type="string" placeholder="e.g. tmp@gmail.com"
+                                value={email}
+                                onChange={ev => setEmail(ev.target.value)} />
+                        </div>
                     </div>
                 )}
             </div>
             <button className="mt-4 bg-primary p-2 w-full text-white rounded-2xl hover:bg-sky-700 hover:shadow-xl cursor-pointer" onClick={bookThisPlace}>
-                Book
+                Send Book Request
                 {checkIn.length > 0 && checkOut.length > 0 && (
                     <span>
                         &nbsp;for {calculateDays()} days

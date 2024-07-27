@@ -73,7 +73,7 @@ app.get('/api/', (req, res) => {
     res.json('test okay');
 });
 
-app.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
     const { name, email, password } = req.body;
     try {
@@ -313,13 +313,13 @@ function getUserDataFromReq(req) {
 
 app.post('/api/bookings', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
-    const { checkIn, checkOut, numberOfGuest, fullName, phone, price, place } = req.body; // Destructure the necessary fields
+    const { checkIn, checkOut, numberOfGuest, fullName, phone, price, place, email } = req.body; // Destructure the necessary fields
 
     try {
         const userData = await getUserDataFromReq(req); // Assuming getUserDataFromReq should be getUserDataFromToken
 
         const booking = await Booking.create({
-            checkIn, checkOut, numberOfGuest, fullName, phone, price, place,
+            checkIn, checkOut, numberOfGuest, fullName, phone, price, place, email,
             user: userData.id
         });
 
