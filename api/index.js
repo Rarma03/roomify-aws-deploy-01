@@ -124,12 +124,12 @@ app.get('/api/profile', (req, res) => {
     else {
         res.json(null);
     }
-    res.json({ token });
+    // res.json({ token });
 })
 
 
 app.post('/api/logout', (req, res) => {
-    mongoose.connect(process.env.MONGO_URL);
+    // mongoose.connect(process.env.MONGO_URL);
     res.cookie('token', '').json(true);
 })
 
@@ -335,6 +335,36 @@ app.get('/api/bookings', async (req, res) => {
     res.json(await Booking.find({ user: userData.id }).populate('place'))
 })
 
+
+app.get('/api/requests', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            console.error('JWT verification failed:', err);
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const bookings = await Booking.find()
+                .populate('place')
+                .populate('user', 'name email');
+
+            // Filter bookings where the owner is the logged-in user
+            const ownerBookings = bookings.filter(booking => booking.place.owner.toString() === user.id);
+
+            res.json(ownerBookings);
+        } catch (error) {
+            console.error('Error fetching booking requests:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
