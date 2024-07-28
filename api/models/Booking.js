@@ -10,6 +10,7 @@ const bookingSchema = new mongoose.Schema({
     email: { type: String, required: true },
     numberOfGuest: { type: String, required: true },
     price: Number,
+    status: { type: Number, Default: 1 }
 });
 
 const BookingModel = mongoose.model('Booking', bookingSchema);

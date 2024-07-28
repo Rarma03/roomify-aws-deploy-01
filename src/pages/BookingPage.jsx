@@ -48,6 +48,16 @@ export default function BookingPage() {
                                         </span>
                                     </div>
                                 </div>
+                                <div>
+                                    Your Booking Status Confirmation :
+                                    {booking.status === 1 ? (
+                                        <span className='text-blue-600'>Pending</span>
+                                    ) : booking.status === 2 ? (
+                                        <span className='text-green-600'>Request Accepted</span>
+                                    ) : (
+                                        <span className='text-red-600'>Request Rejected</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </Link>

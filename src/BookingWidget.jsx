@@ -11,6 +11,7 @@ export default function BookingWidget({ place }) {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [redirect, setRedirect] = useState('');
+    const [status, setStatus] = useState(1);
 
     const calculateDays = () => {
         if (checkIn.length > 0 && checkOut.length > 0) {
@@ -22,7 +23,7 @@ export default function BookingWidget({ place }) {
 
     async function bookThisPlace() {
         const data = {
-            checkIn, checkOut, numberOfGuest, fullName, phone, place: place._id,
+            checkIn, checkOut, numberOfGuest, fullName, phone, place: place._id, status,
             price: calculateDays() * place.price * numberOfGuest, email,
         };
         const res = await axios.post('/bookings', data);

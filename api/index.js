@@ -313,13 +313,13 @@ function getUserDataFromReq(req) {
 
 app.post('/api/bookings', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
-    const { checkIn, checkOut, numberOfGuest, fullName, phone, price, place, email } = req.body; // Destructure the necessary fields
+    const { checkIn, checkOut, numberOfGuest, fullName, phone, price, place, email, status } = req.body; // Destructure the necessary fields
 
     try {
         const userData = await getUserDataFromReq(req); // Assuming getUserDataFromReq should be getUserDataFromToken
 
         const booking = await Booking.create({
-            checkIn, checkOut, numberOfGuest, fullName, phone, price, place, email,
+            checkIn, checkOut, numberOfGuest, fullName, phone, price, place, email, status,
             user: userData.id
         });
 
@@ -364,6 +364,45 @@ app.get('/api/requests', async (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         }
     });
+});
+
+app.post('/api/updateBookingStatus', async (req, res) => {
+    try {
+        await mongoose.connect(process.env.MONGO_URL);
+
+        const { token } = req.cookies;
+
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        jwt.verify(token, jwtSecret, {}, async (err, user) => {
+            if (err) {
+                console.error('JWT verification failed:', err);
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            try {
+                const { id, cur_status } = req.body;
+                const booking = await Booking.findById(id);
+
+                if (!booking) {
+                    return res.status(404).json({ error: 'Booking not found' });
+                }
+
+                booking.status = cur_status;
+                await booking.save();
+
+                res.status(200).json({ message: 'Booking status updated successfully' });
+            } catch (error) {
+                console.error('Error fetching booking requests:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        });
+    } catch (error) {
+        console.error('Error connecting to MongoDB:', error);
+        res.status(500).json({ error: 'Database connection error' });
+    }
 });
 
 const PORT = process.env.PORT || 4000;
