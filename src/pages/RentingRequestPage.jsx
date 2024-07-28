@@ -10,7 +10,7 @@ export default function RentingRequestPage() {
     useEffect(() => {
         const fetchRequests = async () => {
             try {
-                const response = await axios.get('/requests');
+                const response = await axios.get('/rentingrequests');
                 setRequests(response.data);
             } catch (error) {
                 console.error('Error fetching requests:', error);

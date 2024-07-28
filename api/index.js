@@ -336,7 +336,7 @@ app.get('/api/bookings', async (req, res) => {
 })
 
 
-app.get('/api/requests', async (req, res) => {
+app.get('/api/rentingrequests', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
     const { token } = req.cookies;
 
@@ -403,6 +403,46 @@ app.post('/api/updateBookingStatus', async (req, res) => {
         console.error('Error connecting to MongoDB:', error);
         res.status(500).json({ error: 'Database connection error' });
     }
+});
+
+app.post('/api/deleteBooking', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            console.error('JWT verification failed:', err);
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const { id } = req.body;
+            const booking = await Booking.findById(id);
+
+            if (!booking) {
+                return res.status(404).json({ error: 'Booking not found' });
+            }
+
+            // Ensure the user is authorized to delete this booking
+            console.log(booking.user.toString());
+            console.log(user.id);
+            if (booking.user.toString() !== user.id) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+
+            await Booking.findByIdAndDelete(id);
+
+            res.status(200).json({ message: 'Booking deleted successfully' });
+        }
+        catch (error) {
+            console.error('Error deleting booking:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
 });
 
 const PORT = process.env.PORT || 4000;
