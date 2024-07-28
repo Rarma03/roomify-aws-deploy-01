@@ -8,14 +8,21 @@
             "destination": "/api/index.js"
         }
     ],
+    "redirects": [
+        {
+            "source": "/api",
+            "destination": "/api/",
+            "statusCode": 301
+        }
+    ],
     "routes": [
         {
-            "src": "/api/",
-            "dest": "/"
+            "src": "/api/(.*)",
+            "dest": "/api/$1"
         },
         {
-            "src": "/api/login",
-            "dest": "/"
+            "src": "/(.*)",
+            "dest": "/index.html"
         }
     ]
 }
