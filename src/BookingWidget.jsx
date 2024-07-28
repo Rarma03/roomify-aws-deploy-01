@@ -29,7 +29,7 @@ export default function BookingWidget({ place }) {
         const res = await axios.post('/bookings', data);
 
         const bookingId = res.data._id;
-        setRedirect(`/account/bookings/${bookingId}`);
+        setRedirect(`/account/bookings`);
     }
 
     if (redirect) {
