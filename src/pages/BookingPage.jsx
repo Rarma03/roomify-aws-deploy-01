@@ -19,6 +19,12 @@ export default function BookingPage() {
     return (
         <div className='px-4 md:px-8 lg:px-16'>
             <AccountNav />
+            {bookings?.length === 0 && (
+                <div className='mt-20 mb-20 text-center'>
+                    No Booking Available
+                </div>
+
+            )}
             <div className='mt-6'>
                 {bookings?.length > 0 && bookings.map(booking => (
                     <div
