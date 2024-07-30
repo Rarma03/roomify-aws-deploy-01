@@ -86,7 +86,7 @@ export default function BookingWidget({ place }) {
                 )}
             </div>
             <button className="mt-4 bg-primary p-2 w-full text-white rounded-2xl hover:bg-sky-700 hover:shadow-xl cursor-pointer" onClick={bookThisPlace}>
-                Send Book Request
+                Send Booking Request
                 {checkIn.length > 0 && checkOut.length > 0 && (
                     <span>
                         &nbsp;for {calculateDays()} days

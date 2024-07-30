@@ -182,7 +182,45 @@ app.post('/api/upload', photosMiddleware.array('photos', 100), async (req, res) 
 });
 
 
-app.post('/api/places', (req, res) => {
+// app.post('/api/places', (req, res) => {
+//     mongoose.connect(process.env.MONGO_URL);
+//     const { token } = req.cookies;
+
+//     jwt.verify(token, jwtSecret, {}, async (err, user) => {
+//         if (err) {
+//             console.error('JWT verification failed:', err);
+//             return res.status(401).json({ error: 'Unauthorized' });
+//         }
+
+//         const { title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests, price } = req.body;
+
+//         if (!title || !address || !description) {
+//             alert('required field missing !!');
+//             return res.status(400).json({ error: 'Missing required fields' });
+//         }
+
+//         try {
+//             const placeDoc = await Place.create({
+//                 owner: user.id,
+//                 title,
+//                 address,
+//                 photos: addedPhotos,
+//                 description,
+//                 perks,
+//                 extraInfo,
+//                 checkIn,
+//                 checkOut,
+//                 maxGuests,
+//                 price
+//             });
+//             res.json(placeDoc);
+//         } catch (error) {
+//             console.error('Error creating place:', error);
+//             res.status(500).json({ error: 'Internal server error' });
+//         }
+//     });
+// });
+app.post('/api/places', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
     const { token } = req.cookies;
 
@@ -192,10 +230,9 @@ app.post('/api/places', (req, res) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const { title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests, price } = req.body;
+        const { title, address, addedPhotos, description, amenities, extraInfo, maxGuests, price, location, roomType, bedrooms, bathrooms } = req.body;
 
         if (!title || !address || !description) {
-            alert('required field missing !!');
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
@@ -206,12 +243,14 @@ app.post('/api/places', (req, res) => {
                 address,
                 photos: addedPhotos,
                 description,
-                perks,
+                amenities, // Changed from perks to amenities
                 extraInfo,
-                checkIn,
-                checkOut,
                 maxGuests,
-                price
+                price,
+                location,
+                roomType,
+                bedrooms,
+                bathrooms,
             });
             res.json(placeDoc);
         } catch (error) {
@@ -220,6 +259,7 @@ app.post('/api/places', (req, res) => {
         }
     });
 });
+
 
 app.get('/api/places', async (req, res) => {
     mongoose.connect(process.env.MONGO_URL);
@@ -256,50 +296,102 @@ app.get('/api/places/:id', async (req, res) => {
 
 
 
+// app.put('/api/places/:id', async (req, res) => {
+//     mongoose.connect(process.env.MONGO_URL);
+//     const { token } = req.cookies;
+//     const { id } = req.params;
+//     const { title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests, price } = req.body;
+
+//     jwt.verify(token, jwtSecret, {}, async (err, user) => {
+//         if (err) {
+//             console.error('JWT verification failed:', err);
+//             return res.status(401).json({ error: 'Unauthorized' });
+//         }
+
+//         try {
+//             const placeDoc = await Place.findById(id);
+
+//             if (!placeDoc) {
+//                 return res.status(404).json({ error: 'Place not found' });
+//             }
+
+//             if (user.id !== placeDoc.owner.toString()) {
+//                 return res.status(403).json({ error: 'Forbidden' });
+//             }
+
+//             placeDoc.set({
+//                 title,
+//                 address,
+//                 photos: addedPhotos,
+//                 description,
+//                 perks,
+//                 extraInfo,
+//                 checkIn,
+//                 checkOut,
+//                 maxGuests,
+//                 price
+//             });
+
+//             await placeDoc.save();
+//             res.json('okay');
+//         } catch (error) {
+//             console.error('Error updating place:', error);
+//             res.status(500).json({ error: 'Internal server error' });
+//         }
+//     });
+// });
 app.put('/api/places/:id', async (req, res) => {
-    mongoose.connect(process.env.MONGO_URL);
-    const { token } = req.cookies;
-    const { id } = req.params;
-    const { title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests, price } = req.body;
+    try {
+        mongoose.connect(process.env.MONGO_URL);
+        const { token } = req.cookies;
+        const { id } = req.params;
+        const { title, address, addedPhotos, description, amenities, extraInfo, maxGuests, price, roomType, bedrooms, bathrooms, location } = req.body;
 
-    jwt.verify(token, jwtSecret, {}, async (err, user) => {
-        if (err) {
-            console.error('JWT verification failed:', err);
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
-        try {
-            const placeDoc = await Place.findById(id);
-
-            if (!placeDoc) {
-                return res.status(404).json({ error: 'Place not found' });
+        jwt.verify(token, jwtSecret, {}, async (err, user) => {
+            if (err) {
+                console.error('JWT verification failed:', err);
+                return res.status(401).json({ error: 'Unauthorized' });
             }
 
-            if (user.id !== placeDoc.owner.toString()) {
-                return res.status(403).json({ error: 'Forbidden' });
+            try {
+                const placeDoc = await Place.findById(id);
+
+                if (!placeDoc) {
+                    return res.status(404).json({ error: 'Place not found' });
+                }
+
+                if (user.id !== placeDoc.owner.toString()) {
+                    return res.status(403).json({ error: 'Forbidden' });
+                }
+
+                placeDoc.set({
+                    title,
+                    address,
+                    photos: addedPhotos,
+                    description,
+                    amenities,
+                    extraInfo,
+                    maxGuests,
+                    price,
+                    roomType,
+                    bedrooms,
+                    bathrooms,
+                    location
+                });
+
+                await placeDoc.save();
+                res.json('okay');
+            } catch (error) {
+                console.error('Error updating place:', error);
+                res.status(500).json({ error: 'Internal server error' });
             }
-
-            placeDoc.set({
-                title,
-                address,
-                photos: addedPhotos,
-                description,
-                perks,
-                extraInfo,
-                checkIn,
-                checkOut,
-                maxGuests,
-                price
-            });
-
-            await placeDoc.save();
-            res.json('okay');
-        } catch (error) {
-            console.error('Error updating place:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    });
+        });
+    } catch (error) {
+        console.error('Error in PUT request:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
+
 
 
 function getUserDataFromReq(req) {
@@ -443,6 +535,43 @@ app.post('/api/deleteBooking', async (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         }
     });
+});
+
+
+app.get('/api/search', async (req, res) => {
+    try {
+        const {
+            price,
+            wifi,
+            parking,
+            kitchen,
+            airConditioning,
+            petFriendly,
+            smokingAllowed,
+            roomType,
+            bedrooms,
+            bathrooms
+        } = req.query;
+
+        const filters = {};
+
+        if (price) filters.price = { $gte: Number(price[0]), $lte: Number(price[1]) };
+        if (wifi) filters['amenities.wifi'] = wifi === 'true';
+        if (parking) filters['amenities.parking'] = parking === 'true';
+        if (kitchen) filters['amenities.kitchen'] = kitchen === 'true';
+        if (airConditioning) filters['amenities.airConditioning'] = airConditioning === 'true';
+        if (petFriendly) filters['amenities.petFriendly'] = petFriendly === 'true';
+        if (smokingAllowed) filters['amenities.smokingAllowed'] = smokingAllowed === 'true';
+        if (roomType) filters.roomType = roomType;
+        if (bedrooms) filters.bedrooms = { $gte: Number(bedrooms) };
+        if (bathrooms) filters.bathrooms = { $gte: Number(bathrooms) };
+
+        const places = await Place.find(filters);
+
+        res.json(places);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 4000;

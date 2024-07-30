@@ -14,6 +14,7 @@ import SinglePlacePage from './pages/SinglePlacePage'
 import BookingPage from './pages/BookingPage'
 import BookingPlacePage from './pages/BookingPlacePage'
 import RentingRequestPage from './pages/RentingRequestPage'
+import SearchPage from './pages/SearchPage'
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -35,6 +36,7 @@ export default function App() {
           <Route path='/account/bookings' element={<BookingPage />} />
           <Route path='/account/rentingrequest' element={<RentingRequestPage />} />
           <Route path='/account/bookings/:id' element={<BookingPlacePage />} />
+          <Route path='/search' element={<SearchPage />} />
         </Route>
       </Routes >
     </UserContextProvider>
