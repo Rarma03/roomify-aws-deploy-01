@@ -93,19 +93,21 @@ export default function SinglePlacePage() {
                     <b>Room Type: </b>{place.roomType}<br />
                     <b>Bedrooms: </b>{place.bedrooms}<br />
                     <b>Bathrooms: </b>{place.bathrooms}<br />
-                    <b>Amenities: </b><br />
-                    <ul>
-                        {place.amenities && Object.entries(place.amenities).map(([key, value]) => (
-                            <li key={key}><b>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}: </b>{value ? 'Yes' : 'No'}</li>
-                        ))}
-                    </ul>
+                    <div className="my-7">
+                        <b className="text-xl">Amenities: </b><br />
+                        <ul className="grid grid-cols-2">
+                            {place.amenities && Object.entries(place.amenities).map(([key, value]) => (
+                                <li key={key}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {value ? 'Yes' : 'No'}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
                 <BookingWidget place={place} />
             </div>
             <div>
-                <h2 className="font-semibold text-1xl mt-5">Extra Info</h2>
+                <h2 className="font-semibold text-1xl mt-10 md:mt-1">Extra Info</h2>
             </div>
-            <div className="text-sm text-gray-700 leading-4 mb-4 mt-1">
+            <div className="text-sm text-gray-700 leading-4 mb-4">
                 {place.extraInfo}
             </div>
         </div>

@@ -63,7 +63,7 @@ export default function SearchPage() {
                         <label className="block text-gray-700 mb-2">Price Range: ₹{price[0]} - ₹{price[1]}</label>
                         <input
                             type="range"
-                            className="w-full"
+                            className="w-full range-slider"
                             min="0"
                             max="100000"
                             step="10"
@@ -72,7 +72,7 @@ export default function SearchPage() {
                         />
                         <input
                             type="range"
-                            className="w-full"
+                            className="w-full range-slider"
                             min="0"
                             max="100000"
                             step="10"

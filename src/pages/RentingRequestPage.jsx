@@ -32,7 +32,7 @@ export default function RentingRequestPage() {
                         </div>
                     ))
                 ) : (
-                    <p>No booking requests available.</p>
+                    <p className="bg-yellow-100 p-1">Discount Your Place More If there is No booking requests available.</p>
                 )}
             </div>
         </div>

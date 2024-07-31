@@ -32,3 +32,20 @@ textarea{
     @apply w-full border my-1 py-2 px-3 rounded-2xl;
     height: 140px;
 }
+
+/* Custom CSS for Tailwind range slider */
+.range-slider {
+    @apply appearance-none w-full h-2 bg-pink-200 rounded-lg outline-none transition duration-200 ease-in-out;
+}
+
+.range-slider::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-primary rounded-full cursor-pointer;
+}
+
+.range-slider::-moz-range-thumb {
+    @apply appearance-none w-4 h-4 bg-pink-500 rounded-full cursor-pointer;
+}
+
+.range-slider::-ms-thumb {
+    @apply appearance-none w-4 h-4 bg-pink-500 rounded-full cursor-pointer;
+}
