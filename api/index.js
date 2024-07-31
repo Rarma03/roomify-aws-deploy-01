@@ -520,8 +520,8 @@ app.post('/api/deleteBooking', async (req, res) => {
             }
 
             // Ensure the user is authorized to delete this booking
-            console.log(booking.user.toString());
-            console.log(user.id);
+            // console.log(booking.user.toString());
+            // console.log(user.id);
             if (booking.user.toString() !== user.id) {
                 return res.status(403).json({ error: 'Forbidden' });
             }
@@ -537,40 +537,97 @@ app.post('/api/deleteBooking', async (req, res) => {
     });
 });
 
+// app.get('/api/search', async (req, res) => {
+//     try {
+//         const { search, price, wifi, parking, kitchen, airConditioning, petFriendly, smokingAllowed, roomType, bedrooms, bathrooms } = req.query;
 
+//         // Convert price to an array of numbers
+//         const priceRange = price ? price.split(',').map(Number) : [0, 100000];
+
+//         // Create a filter object
+//         const filters = {
+//             price: { $gte: priceRange[0], $lte: priceRange[1] },
+//             'amenities.wifi': wifi === 'true',
+//             'amenities.parking': parking === 'true',
+//             'amenities.kitchen': kitchen === 'true',
+//             'amenities.airConditioning': airConditioning === 'true',
+//             'amenities.petFriendly': petFriendly === 'true',
+//             'amenities.smokingAllowed': smokingAllowed === 'true',
+//             roomType: roomType ? { $regex: roomType, $options: 'i' } : undefined,
+//             bedrooms: { $gte: Number(bedrooms) },
+//             bathrooms: { $gte: Number(bathrooms) },
+//         };
+
+//         // Add regex search for title and address
+//         if (search) {
+//             filters.$or = [
+//                 { title: { $regex: search, $options: 'i' } },
+//                 { address: { $regex: search, $options: 'i' } }
+//             ];
+//         }
+
+//         // Remove undefined or false filters
+//         Object.keys(filters).forEach(key => {
+//             if (filters[key] === undefined || filters[key] === false) {
+//                 delete filters[key];
+//             }
+//         });
+
+//         const places = await Place.find(filters);
+
+//         res.json(places);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Server error', error });
+//     }
+// });
 app.get('/api/search', async (req, res) => {
     try {
-        const {
-            price,
-            wifi,
-            parking,
-            kitchen,
-            airConditioning,
-            petFriendly,
-            smokingAllowed,
-            roomType,
-            bedrooms,
-            bathrooms
-        } = req.query;
+        const { search, price, wifi, parking, kitchen, airConditioning, petFriendly, smokingAllowed, roomType, bedrooms, bathrooms } = req.query;
 
-        const filters = {};
+        // Convert price to an array of numbers
+        const priceRange = price ? price.split(',').map(Number) : [0, 100000];
 
-        if (price) filters.price = { $gte: Number(price[0]), $lte: Number(price[1]) };
-        if (wifi) filters['amenities.wifi'] = wifi === 'true';
-        if (parking) filters['amenities.parking'] = parking === 'true';
-        if (kitchen) filters['amenities.kitchen'] = kitchen === 'true';
-        if (airConditioning) filters['amenities.airConditioning'] = airConditioning === 'true';
-        if (petFriendly) filters['amenities.petFriendly'] = petFriendly === 'true';
-        if (smokingAllowed) filters['amenities.smokingAllowed'] = smokingAllowed === 'true';
-        if (roomType) filters.roomType = roomType;
-        if (bedrooms) filters.bedrooms = { $gte: Number(bedrooms) };
-        if (bathrooms) filters.bathrooms = { $gte: Number(bathrooms) };
+        // Create a filter object
+        const filters = {
+            price: { $gte: priceRange[0], $lte: priceRange[1] },
+            'amenities.wifi': wifi === 'true',
+            'amenities.parking': parking === 'true',
+            'amenities.kitchen': kitchen === 'true',
+            'amenities.airConditioning': airConditioning === 'true',
+            'amenities.petFriendly': petFriendly === 'true',
+            'amenities.smokingAllowed': smokingAllowed === 'true',
+            roomType: roomType ? { $regex: roomType, $options: 'i' } : undefined,
+            bedrooms: { $gte: Number(bedrooms) },
+            bathrooms: { $gte: Number(bathrooms) },
+        };
 
-        const places = await Place.find(filters);
+        // Add text search if search query is provided
+        if (search) {
+            filters.$text = { $search: search };
+        }
+
+        // Remove undefined or false filters
+        Object.keys(filters).forEach(key => {
+            if (filters[key] === undefined || filters[key] === false) {
+                delete filters[key];
+            }
+        });
+
+        // Find places with the applied filters
+        let places;
+        if (search) {
+            // If search query is present, sort by text score
+            places = await Place.find(filters, { score: { $meta: "textScore" } }).sort({ score: { $meta: "textScore" } });
+        } else {
+            // If no search query, just find with filters
+            places = await Place.find(filters);
+        }
 
         res.json(places);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
     }
 });
 

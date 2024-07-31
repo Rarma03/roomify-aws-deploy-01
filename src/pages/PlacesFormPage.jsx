@@ -225,7 +225,8 @@ export default function PlacesFormPage() {
                         onChange={(e) => setRoomType(e.target.value)}
                     >
                         <option value="">Select Room Type</option>
-                        <option value="Entire place">Entire place</option>
+                        <option value="Entire place">Entire place (private)</option>
+                        <option value="Entire place shared">Entire place (shared) </option>
                         <option value="Private room">Private room</option>
                         <option value="Shared room">Shared room</option>
                     </select>

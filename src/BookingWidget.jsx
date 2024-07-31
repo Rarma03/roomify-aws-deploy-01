@@ -22,14 +22,21 @@ export default function BookingWidget({ place }) {
     };
 
     async function bookThisPlace() {
-        const data = {
-            checkIn, checkOut, numberOfGuest, fullName, phone, place: place._id, status,
-            price: calculateDays() * place.price * numberOfGuest, email,
-        };
-        const res = await axios.post('/bookings', data);
+        try {
 
-        const bookingId = res.data._id;
-        setRedirect(`/account/bookings`);
+            const data = {
+                checkIn, checkOut, numberOfGuest, fullName, phone, place: place._id, status,
+                price: calculateDays() * place.price * numberOfGuest, email,
+            };
+            const res = await axios.post('/bookings', data);
+
+            const bookingId = res.data._id;
+            setRedirect(`/account/bookings`);
+        }
+        catch (err) {
+            alert("Please Login to continue Booking");
+            throw err;
+        }
     }
 
     if (redirect) {

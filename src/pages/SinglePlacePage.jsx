@@ -88,7 +88,8 @@ export default function SinglePlacePage() {
                         {place.description}
                     </div>
                     <b>Max Guest: </b>{place.maxGuests}<br />
-                    <b>Location: </b>{place.location}<br />
+                    <b>Check Out the Live location: </b>{place.location ? (<a href={`${place.location}`} target="_blank">
+                        GO</a>) : ("Unavailable")}<br />
                     <b>Room Type: </b>{place.roomType}<br />
                     <b>Bedrooms: </b>{place.bedrooms}<br />
                     <b>Bathrooms: </b>{place.bathrooms}<br />

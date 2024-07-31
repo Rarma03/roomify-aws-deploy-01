@@ -44,6 +44,10 @@ const placeSchema = new mongoose.Schema({
     reviews: [{ user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, comment: String, rating: Number }],
 });
 
+
+// Add text index to title and address fields - it is add to make sorting based on textScore
+placeSchema.index({ title: 'text', address: 'text' });
+
 const PlaceModel = mongoose.model('Places', placeSchema);
 
 export default PlaceModel;

@@ -30,7 +30,7 @@ export default function IndexPage() {
                         </h3>
                         <div className="mt-1">
                             <span className="font-bold">
-                                &#8377; {place.price} per night
+                                &#8377; {place.price} per month
                             </span>
                         </div>
                     </Link>
