@@ -2,6 +2,7 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom";
 import Image from "../Image";
+import IndexNav from "../IndexNav";
 
 export default function IndexPage() {
     const [places, setPlaces] = useState([]);
@@ -13,7 +14,8 @@ export default function IndexPage() {
     }, []);
     return (
         <div >
-            <div className="border mt-10"></div>
+            <IndexNav />
+            <div className="border mt-2"></div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8 mt-5">
                 {places.length > 0 && places.map(place => (
                     <Link to={'/place/' + place._id} key={place._id} className="mt-4">
