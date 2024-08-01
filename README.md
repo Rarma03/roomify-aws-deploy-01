@@ -10,3 +10,5 @@ Currently, two official plugins are available:
 
 Bugs to resolve:
 1. at flatmates page if selected one intrest option then it wont hide untill request is submitted or else refreshing the page is needed
+2. the order in which content is loading on places & flatmate can be more randomize
+3. at flatmate add searching feature so that user can sort by place

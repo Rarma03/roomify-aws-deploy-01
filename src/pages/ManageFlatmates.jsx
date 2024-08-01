@@ -30,7 +30,7 @@ const ManageFlatmates = () => {
     };
 
     return (
-        <div className='relative min-h-[70vh] p-4'>
+        <div className='relative min-h-[70vh]'>
             <AccountNav />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                 {requests.map((request) => (
