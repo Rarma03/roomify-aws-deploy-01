@@ -90,7 +90,7 @@ const FlatmatePage = () => {
                                 <p className="text-gray-700 mt-2 break-words"><b>Qualities I am looking for: </b>{request.preferenceType}</p>
                                 <button
                                     onClick={() => handleInterestedClick(request._id)}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700"
+                                    className="bg-primary text-white px-4 py-2 rounded mt-4 hover:bg-blue-700"
                                 >
                                     Interested
                                 </button>
@@ -102,6 +102,7 @@ const FlatmatePage = () => {
                                             <input
                                                 type="text"
                                                 id="name"
+                                                placeholder='e.g. Raj Verma'
                                                 name="name"
                                                 value={formData.name}
                                                 onChange={handleChange}
@@ -114,6 +115,7 @@ const FlatmatePage = () => {
                                             <input
                                                 type="text"
                                                 id="contact"
+                                                placeholder='e.g. +91 98765 43210'
                                                 name="contact"
                                                 value={formData.contact}
                                                 onChange={handleChange}
@@ -125,6 +127,7 @@ const FlatmatePage = () => {
                                             <label htmlFor="message" className="block text-sm font-medium text-gray-700">Message</label>
                                             <textarea
                                                 id="message"
+                                                placeholder=' e.g. I had also got a recent transfer from my previous office XYZ and currently searching for roommate in {locality}. Please Contact if intrested'
                                                 name="message"
                                                 value={formData.message}
                                                 onChange={handleChange}
@@ -133,6 +136,7 @@ const FlatmatePage = () => {
                                                 required
                                             />
                                         </div>
+                                        <div className='text-red-400'>Note: If u dont get a call from the person in 24hr, then please find some other flatmate</div>
                                         <button
                                             type="submit"
                                             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
