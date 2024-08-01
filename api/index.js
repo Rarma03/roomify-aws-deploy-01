@@ -17,6 +17,7 @@ import Booking from './models/Booking.js';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import mime from 'mime-types';
 import FlatmateModel from './models/FlatmateRequest.js'
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,6 +40,27 @@ app.use(cors({
     origin: ['http://localhost:5173']
 }));
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use your email service provider
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+export const sendEmail = async (to, subject, text) => {
+    try {
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            text,
+        });
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
 
 
 // mimetype means type of file image, pdf, etc..
@@ -486,9 +508,24 @@ app.post('/api/updateBookingStatus', async (req, res) => {
                 booking.status = cur_status;
                 await booking.save();
 
+                // Send email based on status
+                if (cur_status === 2) { // Allocated
+                    await sendEmail(
+                        booking.email,
+                        'Your Booking has been Allocated',
+                        `Dear ${booking.fullName},\n\nYour booking from ${new Date(booking.checkIn).toLocaleDateString()} to ${new Date(booking.checkOut).toLocaleDateString()} has been successfully allocated.\n\nOwner Contact Details :\nEmail: ${user.email}\nPhone: +91 78787 99234\n\nThank you for booking with us!`
+                    );
+                } else if (cur_status === 3) { // Deallocated
+                    await sendEmail(
+                        booking.email,
+                        'Your Booking Request has been Rejected',
+                        `Dear ${booking.fullName},\n\nWe regret to inform you that your booking request from ${new Date(booking.checkIn).toLocaleDateString()} to ${new Date(booking.checkOut).toLocaleDateString()} has been rejected.\n\nWe hope to serve you better in the future.`
+                    );
+                }
+
                 res.status(200).json({ message: 'Booking status updated successfully' });
             } catch (error) {
-                console.error('Error fetching booking requests:', error);
+                console.error('Error updating booking status:', error);
                 res.status(500).json({ error: 'Internal server error' });
             }
         });

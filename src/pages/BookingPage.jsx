@@ -57,14 +57,18 @@ export default function BookingPage() {
                                 </div>
                             </div>
                             <div className='mt-2 md:mt-3'>
-                                Your Booking Status Confirmation:
+                                <span>Your Booking Status Confirmation:</span>
                                 {(booking.status === 1 || booking.status === 4) ? (
                                     <span className='text-blue-600 ml-1'>Pending</span>
                                 ) : booking.status === 2 ? (
-                                    <span className='text-green-600 ml-1'>Request Accepted</span>
+                                    <div>
+                                        <span className='text-green-600 ml-1'>Request Accepted</span>
+                                        <span className='text-red-400 block'>*Kindly check your provided mail</span>
+                                    </div>
                                 ) : (
-                                    <div className='flex flex-col mt-1'>
+                                    <div className='mt-1'>
                                         <span className='text-red-600'>Request Rejected</span>
+                                        <span className='text-red-400 block'>*Kindly check your provided mail or 👇</span>
                                         <RejectOptionWidget bookedplace={booking} />
                                     </div>
                                 )}
