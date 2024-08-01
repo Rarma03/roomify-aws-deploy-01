@@ -1,4 +1,6 @@
+import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateFlatmateRequestFormPage = () => {
     const [name, setName] = useState('');
@@ -6,19 +8,38 @@ const CreateFlatmateRequestFormPage = () => {
     const [preferenceType, setPreferenceType] = useState('');
     const [gender, setGender] = useState('');
     const [roomifylink, setRoomifyLink] = useState('');
+    const [load, setLoad] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoad(true);
+
+        const purifyLink = roomifylink.split('/');
+        const place = purifyLink[purifyLink.length - 1];
+        console.log(place);
+
         const requestData = {
             name,
             introduction,
             preferenceType,
             gender,
+            place,
         };
         console.log(requestData);
 
-        // Add your API call here to submit the data to the backend
+        try {
+            // Use POST to submit the data to the backend
+            await axios.post('/flatmate', requestData);
+            navigate('/account/manageflatmates');
+        } catch (error) {
+            alert(`Can't Create Request Currently Try Later`);
+            console.error('Error submitting the flatmate request:', error);
+        } finally {
+            setLoad(false);
+        }
     };
+
 
     return (
         <div className='bg-white my-10 p-4 shadow-md rounded-md md:mx-[200px]'>

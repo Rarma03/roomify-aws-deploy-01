@@ -49,3 +49,22 @@ textarea{
 .range-slider::-ms-thumb {
     @apply appearance-none w-4 h-4 bg-pink-500 rounded-full cursor-pointer;
 }
+
+/* Masonary Layout */
+.my-masonry-grid {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin-left: -30px; /* Adjust based on your gap */
+    width: auto;
+  }
+  
+  .my-masonry-grid_column {
+    padding-left: 30px; /* Adjust based on your gap */
+    background-clip: padding-box;
+  }
+  
+  .my-masonry-grid_column > div {
+    margin-bottom: 30px; /* Adjust based on your gap */
+  }
+  

@@ -16,6 +16,7 @@ import axios from 'axios';
 import Booking from './models/Booking.js';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import mime from 'mime-types';
+import FlatmateModel from './models/FlatmateRequest.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,7 +32,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // this is done to make photo visible at placeForm page
-app.use('/uploads', express.static(__dirname + '/uploads'))
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
 app.use(cors({
     credentials: true,
@@ -630,6 +631,257 @@ app.get('/api/search', async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 });
+
+// FLATEMATE SECTION
+app.post('/api/flatmate', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { token } = req.cookies;
+    const {
+        name,
+        introduction,
+        preferenceType,
+        gender,
+        place,
+    } = req.body;
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            console.error('JWT verification failed:', err);
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const flatmateDoc = await FlatmateModel.create({
+                name,
+                introduction,
+                preferenceType,
+                gender,
+                place,
+                owner: user.id,
+            });
+            res.json(flatmateDoc);
+        } catch (error) {
+            console.error('Error creating Flatmate Request:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
+app.get('/api/flatmate/requests', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => { // Make sure to replace jwtSecret with process.env.JWT_SECRET if you use environment variables
+        if (err) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const flatmateRequests = await FlatmateModel.find({ owner: user.id }).populate('place');
+            res.json(flatmateRequests);
+        } catch (error) {
+            console.error('Error fetching flatmate requests:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
+app.delete('/api/flatmate/requests/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, async (err, user) => {
+        if (err) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const requestId = req.params.id;
+            const flatmateRequest = await FlatmateModel.findOneAndDelete({ _id: requestId, owner: user.id });
+
+            if (!flatmateRequest) {
+                return res.status(404).json({ error: 'Request not found' });
+            }
+
+            res.json({ message: 'Request deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting flatmate request:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
+app.get('/api/flatmate/requests/:id', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const { id } = req.params;
+
+            // Find the request with the specific ID and populate requestMessage
+            const request = await FlatmateModel.findOne({ _id: id }).populate('requestMessage');
+
+            if (!request) {
+                return res.status(404).json({ error: 'Request not found' });
+            }
+
+            res.json(request.requestMessage); // Send only the requestMessage
+        } catch (error) {
+            console.error('Error fetching flatmate requests:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
+app.put('/api/flatmate/requests/:id/accept', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const { id } = req.params;
+            const { messageId } = req.body;
+
+            // Use findOneAndUpdate with the positional $ operator to update the specific requestMessage
+            const request = await FlatmateModel.findOneAndUpdate(
+                { _id: id, owner: user.id, 'requestMessage._id': messageId },
+                { $set: { 'requestMessage.$.connectionStatus': 1 } },
+                { new: true, runValidators: true }
+            );
+
+            if (!request) {
+                return res.status(404).json({ error: 'Request not found' });
+            }
+
+            res.json(request.requestMessage); // Send the updated requestMessage array
+        } catch (error) {
+            console.error('Error accepting flatmate request:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
+
+app.put('/api/flatmate/requests/:id/reject', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+
+    const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const { id } = req.params;
+            const { messageId } = req.body;
+
+            const request = await FlatmateModel.findOneAndUpdate(
+                { _id: id, owner: user.id },
+                { $pull: { requestMessage: { _id: messageId } } },
+                { new: true }
+            );
+
+            if (!request) {
+                return res.status(404).json({ error: 'Request not found' });
+            }
+
+            res.json(request.requestMessage); // Send only the updated requestMessage
+        } catch (error) {
+            console.error('Error rejecting flatmate request:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
+app.post('/api/fetchallflatmate', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    res.json(await FlatmateModel.find().populate('place'));
+})
+
+app.post('/api/flatmate/requests/:id/interest', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
+    const { id } = req.params;
+    const { name, message, contact } = req.body;
+    const { token } = req.cookies;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+        if (err) {
+            console.error('JWT verification failed:', err);
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        try {
+            const flatmateRequest = await FlatmateModel.findById(id);
+            if (!flatmateRequest) {
+                return res.status(404).json({ error: 'Flatmate request not found' });
+            }
+
+            const requestIndex = flatmateRequest.requestMessage.findIndex(
+                (req) => req.requestSender.toString() === user.id
+            );
+
+            if (requestIndex !== -1) {
+                // Update the existing request message
+                flatmateRequest.requestMessage[requestIndex] = {
+                    requestSender: user.id,
+                    user_name: name,
+                    message,
+                    phone: contact,
+                    connectionStatus: 0
+                };
+            } else {
+                // Add a new request message if it doesn't exist
+                flatmateRequest.requestMessage.push({
+                    requestSender: user.id,
+                    user_name: name,
+                    message,
+                    phone: contact,
+                    connectionStatus: 0
+                });
+            }
+
+            await flatmateRequest.save();
+            res.status(200).json(flatmateRequest);
+        } catch (error) {
+            console.error('Error updating flatmate request with interest:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+});
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

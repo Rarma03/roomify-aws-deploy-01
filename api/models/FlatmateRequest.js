@@ -1,6 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const flatmateRequestSchema = new mongoose.Schema({
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    place: { type: mongoose.Schema.Types.ObjectId, ref: 'Places' },
     name: {
         type: String,
         required: true,
@@ -15,15 +17,21 @@ const flatmateRequestSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['girl', 'boy', 'girl or boy'],
         required: true,
     },
     createdAt: {
         type: Date,
         default: Date.now,
     },
+    requestMessage: [{
+        requestSender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        user_name: String,
+        message: String,
+        phone: String,
+        connectionStatus: { type: Number, default: 0 },
+    }]
 });
 
 const FlatmateRequest = mongoose.model('FlatmateRequest', flatmateRequestSchema);
 
-module.exports = FlatmateRequest;
+export default FlatmateRequest;

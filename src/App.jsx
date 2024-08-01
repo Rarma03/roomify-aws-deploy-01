@@ -19,6 +19,7 @@ import FlatmatePage from './pages/FlatmatePage'
 import ManageFlatmates from './pages/ManageFlatmates'
 import CreateFlatmate from './pages/CreateFlatmate'
 import CreateFlatmateRequestFormPage from './pages/CreateFlatmateRequestFormPage'
+import CheckRequest from './pages/CheckRequest'
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -42,6 +43,7 @@ export default function App() {
           <Route path='/account/rentingrequest' element={<RentingRequestPage />} />
           <Route path='/account/manageflatmates' element={<ManageFlatmates />} />
           <Route path='/account/manageflatmates/new' element={<CreateFlatmateRequestFormPage />} />
+          <Route path='/account/manageflatmates/checkrequest/:id' element={<CheckRequest />} />
           <Route path='/account/manageflatmates/:id' element={<CreateFlatmate />} />
           <Route path='/search' element={<SearchPage />} />
           <Route path='/flatmates' element={<FlatmatePage />} />
